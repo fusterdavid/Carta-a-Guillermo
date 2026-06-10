@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Carta de Navegación para Guillermo el Grande Mereles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;background:#1a0e05;font-family:'Cinzel',serif;overflow-x:hidden;}
+.screen{display:none;width:100%;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ── MAPA ── */
+.parch-wrap{background:#2a1005;padding:6px;margin:8px;border-radius:4px;}
+.parch{
+  position:relative;background:#d4a96a;
+  background-image:
+    radial-gradient(ellipse at 15% 15%,rgba(160,100,30,0.45) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 85%,rgba(140,85,20,0.4) 0%,transparent 55%);
+  border:2.5px solid #7a4e1a;border-radius:2px;overflow:hidden;
+}
+.parch::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:
+    radial-gradient(ellipse 60px 50px at 4% 5%,rgba(100,55,10,0.2) 0%,transparent 100%),
+    radial-gradient(ellipse 50px 60px at 96% 4%,rgba(80,40,5,0.18) 0%,transparent 100%),
+    radial-gradient(ellipse 70px 35px at 92% 94%,rgba(110,65,12,0.22) 0%,transparent 100%),
+    radial-gradient(ellipse 55px 55px at 6% 92%,rgba(90,48,8,0.2) 0%,transparent 100%);
+}
+
+/* HEADER */
+.hdr{position:relative;z-index:5;text-align:center;padding:14px 52px 10px 14px;border-bottom:1.5px solid rgba(100,60,10,0.35);}
+.hdr-orn{font-size:14px;color:#6b3a0a;letter-spacing:8px;display:block;margin-bottom:4px;opacity:.7;}
+.hdr-title{font-family:'Cinzel Decorative',serif;font-size:clamp(11px,4vw,17px);color:#2a0f00;line-height:1.4;}
+.hdr-title .big{font-size:clamp(13px,5vw,21px);display:block;margin-top:2px;}
+.hdr-sub{font-size:clamp(9px,2.8vw,11px);color:#5c3010;font-style:italic;line-height:1.5;margin-top:6px;}
+.seal{
+  position:absolute;right:8px;top:8px;width:46px;height:46px;
+  background:radial-gradient(circle,#8b1a1a 60%,#6b0e0e 100%);
+  border-radius:50%;border:2px solid #5a0a0a;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;
+}
+.seal-star{color:#f5d78e;font-size:14px;line-height:1;}
+.seal-txt{color:#f5d78e;font-size:6px;font-weight:700;text-align:center;line-height:1.3;}
+
+/* NOTA */
+.nota{
+  position:relative;z-index:5;margin:8px 10px;
+  border:1.5px solid rgba(100,60,10,0.3);border-radius:3px;
+  padding:7px 10px;background:rgba(180,120,40,0.12);
+  font-size:clamp(9px,2.8vw,11px);color:#4a2008;line-height:1.6;
+  font-style:italic;text-align:center;
+}
+.nota strong{font-style:normal;color:#2a0f00;}
+
+/* MAPA SVG */
+.map-area{position:relative;z-index:5;padding:6px 8px 4px;}
+.map-svg{width:100%;height:auto;display:block;}
+.hs{cursor:pointer;}
+
+/* LEYENDA */
+.legend{
+  position:relative;z-index:5;display:flex;flex-wrap:wrap;gap:8px 14px;
+  justify-content:center;padding:7px 10px 4px;
+  border-top:1.5px solid rgba(100,60,10,0.3);margin:0 8px;
+  font-size:clamp(8px,2.5vw,10px);color:#5c3010;font-style:italic;
+}
+.li{display:flex;align-items:center;gap:5px;}
+.ld{width:9px;height:9px;border-radius:50%;border:1px solid rgba(0,0,0,0.2);flex-shrink:0;}
+.footer-note{position:relative;z-index:5;text-align:center;padding:5px 10px 12px;font-size:clamp(7px,2.2vw,9px);color:#5c3010;font-style:italic;}
+
+/* ══ PANTALLAS DE JUEGO ══ */
+.gscreen{padding:12px 10px 50px;background:#1a0e05;min-height:100vh;}
+.gparch{
+  background:#d4a96a;
+  background-image:radial-gradient(ellipse at 20% 20%,rgba(160,100,30,0.4) 0%,transparent 60%);
+  border:2.5px solid #7a4e1a;border-radius:4px;
+  padding:20px 16px 24px;position:relative;
+}
+.gtitle-bar{text-align:center;border-bottom:1.5px solid rgba(100,60,10,0.4);padding-bottom:12px;margin-bottom:16px;}
+.gloc{font-family:'Cinzel Decorative',serif;font-size:clamp(14px,5vw,20px);color:#2a0f00;line-height:1.3;}
+.gsub{font-size:clamp(9px,3vw,12px);color:#5c3010;font-style:italic;margin-top:3px;}
+
+.pdots{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
+.pd{width:12px;height:12px;border-radius:50%;background:rgba(100,60,10,0.18);border:1.5px solid rgba(100,60,10,0.4);}
+.pd.done{background:#5c2a08;}
+
+.cbox{
+  background:rgba(100,50,10,0.08);border:1.5px solid rgba(100,60,10,0.3);
+  border-radius:3px;padding:14px 14px 12px;margin-bottom:14px;
+  font-size:clamp(12px,3.5vw,15px);color:#2a0f00;line-height:1.75;
+}
+.cemoji{font-size:32px;display:block;text-align:center;margin-bottom:8px;}
+.cbox p{margin-bottom:5px;}
+.cpista{margin-top:8px;font-size:clamp(10px,3vw,12px);color:#5c3010;font-style:italic;}
+
+.opts{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.obtn{
+  background:rgba(100,50,10,0.1);border:1.5px solid rgba(100,60,10,0.4);
+  border-radius:3px;padding:13px 14px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:clamp(12px,3.5vw,14px);
+  color:#2a0f00;text-align:left;line-height:1.45;min-height:48px;width:100%;
+  -webkit-appearance:none;
+}
+.obtn:active{background:rgba(100,50,10,0.22);}
+.obtn.correct{background:rgba(30,100,30,0.2)!important;border-color:#2a6a2a!important;color:#0f3a0f!important;}
+.obtn.wrong{background:rgba(140,20,20,0.15)!important;border-color:#8b1a1a!important;color:#5a0a0a!important;}
+.obtn:disabled{cursor:default;}
+
+.rinput-row{display:flex;gap:8px;margin-bottom:14px;}
+.rinput{
+  flex:1;background:rgba(200,150,60,0.2);border:1.5px solid rgba(100,60,10,0.4);
+  border-radius:3px;padding:12px;font-family:'Cinzel',serif;
+  font-size:clamp(13px,3.8vw,15px);color:#2a0f00;outline:none;min-height:48px;
+}
+.rinput:focus{border-color:rgba(100,60,10,0.8);}
+.sbtn{
+  background:#5c2a08;border:none;border-radius:3px;padding:12px 16px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:clamp(11px,3.2vw,13px);color:#f5d78e;min-height:48px;
+  -webkit-appearance:none;
+}
+.sbtn:active{background:#3d1a03;}
+
+.fbox{padding:12px 14px;border-radius:3px;font-size:clamp(11px,3.2vw,13px);margin-bottom:12px;line-height:1.55;display:none;}
+.fbox.ok{background:rgba(30,100,30,0.18);border:1px solid #2a6a2a;color:#0f3a0f;}
+.fbox.err{background:rgba(140,20,20,0.12);border:1px solid #8b1a1a;color:#5a0a0a;}
+
+.nbtn{
+  display:block;width:100%;background:#3d1a03;border:2px solid #7a4e1a;
+  border-radius:3px;padding:14px 20px;cursor:pointer;font-family:'Cinzel',serif;
+  font-size:clamp(13px,3.8vw,15px);color:#f5d78e;text-align:center;min-height:52px;margin-top:6px;
+  -webkit-appearance:none;
+}
+.nbtn:active{background:#2a0f00;}
+.nbtn.back{
+  background:transparent;color:#5c3010;border:1px solid rgba(100,60,10,0.4);
+  font-size:clamp(11px,3.2vw,13px);min-height:44px;margin-top:12px;
+}
+.nbtn.back:active{background:rgba(100,50,10,0.1);}
+
+.trev{text-align:center;padding:10px 0 4px;}
+.ticon{font-size:64px;display:block;margin-bottom:12px;}
+.tmsg{font-family:'Cinzel Decorative',serif;font-size:clamp(15px,5vw,22px);color:#2a0f00;margin-bottom:10px;line-height:1.4;}
+.tsub{font-size:clamp(11px,3.2vw,14px);color:#5c3010;font-style:italic;line-height:1.65;}
+</style>
+</head>
+<body>
+
+<!-- ══ MAPA ══ -->
+<div id="sm" class="screen active">
+<div class="parch-wrap"><div class="parch">
+
+  <div class="seal">
+    <div class="seal-star">✦</div>
+    <div class="seal-txt">CARTA<br>REAL<br>✦</div>
+  </div>
+
+  <div class="hdr">
+    <span class="hdr-orn">✦ ❧ ✦ ❧ ✦</span>
+    <div class="hdr-title">
+      Carta de Navegación para
+      <span class="big">Guillermo el Grande Mereles</span>
+    </div>
+    <div class="hdr-sub">
+      Por ser Estudiante de Virtud Probada y Mente Aguda —<br>
+      se le concede el Honor y el Privilegio de poseer este Mapa Sagrado.<br>
+      <strong>Que ningún ojo cobarde ose mirar lo que aquí yace escrito.</strong>
+    </div>
+  </div>
+
+  <div class="nota">
+    ⚠ <strong>Advertencia del Cartógrafo:</strong> En este mapa duermen
+    <strong>cuatro caminos secretos</strong> marcados con ◆ rojo.
+    Cada sendero encierra una <strong>prueba de ingenio</strong>.
+    Solo quien las supere hallará el <strong>Tesoro Final</strong>.
+    <em>¡Toca los lugares marcados para comenzar!</em>
+  </div>
+
+  <div class="map-area">
+  <svg class="map-svg" viewBox="0 0 360 480" xmlns="http://www.w3.org/2000/svg">
+
+    <rect x="0" y="0" width="360" height="480" fill="rgba(160,110,40,0.07)" rx="2"/>
+    <path d="M0,0 Q28,80 18,200 Q8,320 22,430 Q10,460 0,480Z" fill="rgba(60,100,140,0.2)"/>
+    <path d="M360,0 Q332,90 344,220 Q356,340 338,440 Q350,465 360,480Z" fill="rgba(60,100,140,0.2)"/>
+    <path d="M0,480 Q90,460 180,468 Q270,460 360,480Z" fill="rgba(60,100,140,0.2)"/>
+
+    <text x="13" y="240" font-family="Cinzel,serif" font-size="7" fill="rgba(40,80,120,0.55)" transform="rotate(-90,13,240)" text-anchor="middle">MAR DE LOS VIENTOS</text>
+    <text x="349" y="240" font-family="Cinzel,serif" font-size="7" fill="rgba(40,80,120,0.55)" transform="rotate(90,349,240)" text-anchor="middle">OCÉANO PROFUNDO</text>
+
+    <path d="M38,50 Q100,35 180,42 Q260,32 322,58 Q342,100 338,175 Q348,250 330,320 Q320,375 300,415 Q250,440 180,435 Q110,440 70,410 Q42,370 38,280 Q28,165 38,50Z"
+          fill="rgba(155,105,38,0.18)" stroke="rgba(100,65,15,0.5)" stroke-width="1.2"/>
+
+    <g fill="rgba(90,55,15,0.45)" stroke="rgba(70,40,10,0.35)" stroke-width="0.7">
+      <polygon points="90,72 103,50 116,72"/>
+      <polygon points="107,74 121,51 135,74"/>
+      <polygon points="122,75 136,52 150,75"/>
+      <polygon points="103,50 103,60 113,60 113,50" fill="rgba(235,225,205,0.5)" stroke="none"/>
+    </g>
+    <g fill="rgba(90,55,15,0.4)" stroke="rgba(70,40,10,0.35)" stroke-width="0.7">
+      <polygon points="248,65 262,43 276,65"/>
+      <polygon points="265,67 279,44 293,67"/>
+      <polygon points="262,43 262,53 272,53 272,43" fill="rgba(235,225,205,0.5)" stroke="none"/>
+    </g>
+    <g fill="rgba(90,55,15,0.38)" stroke="rgba(70,40,10,0.3)" stroke-width="0.7">
+      <polygon points="78,310 90,292 102,310"/>
+      <polygon points="92,312 104,293 116,312"/>
+    </g>
+
+    <g fill="rgba(50,88,28,0.38)" stroke="rgba(30,58,14,0.28)" stroke-width="0.5">
+      <circle cx="65" cy="175" r="11"/>
+      <circle cx="80" cy="164" r="9"/>
+      <circle cx="94" cy="174" r="10"/>
+      <circle cx="80" cy="185" r="8"/>
+    </g>
+    <g fill="rgba(50,88,28,0.34)" stroke="rgba(30,58,14,0.28)" stroke-width="0.5">
+      <circle cx="188" cy="360" r="12"/>
+      <circle cx="205" cy="349" r="10"/>
+      <circle cx="220" cy="360" r="11"/>
+    </g>
+
+    <path d="M110,80 Q115,130 108,175 Q104,215 122,248" fill="none" stroke="rgba(60,100,140,0.42)" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M210,72 Q204,125 215,175 Q222,215 205,255" fill="none" stroke="rgba(60,100,140,0.38)" stroke-width="1.4" stroke-linecap="round"/>
+    <ellipse cx="155" cy="272" rx="26" ry="16" fill="rgba(60,100,140,0.28)" stroke="rgba(40,80,120,0.38)" stroke-width="0.9"/>
+    <text x="155" y="276" font-family="Cinzel,serif" font-size="6.5" fill="rgba(30,60,110,0.6)" text-anchor="middle">Lago Olvidado</text>
+
+    <path d="M88,205 Q145,196 182,200 Q218,203 270,195" fill="none" stroke="rgba(110,70,18,0.55)" stroke-width="2" stroke-dasharray="7,4" stroke-linecap="round"/>
+    <path d="M182,200 Q174,165 165,130 Q158,105 148,85" fill="none" stroke="rgba(110,70,18,0.45)" stroke-width="1.5" stroke-dasharray="6,4" stroke-linecap="round"/>
+    <path d="M218,203 Q215,250 210,295 Q206,330 195,356" fill="none" stroke="rgba(110,70,18,0.45)" stroke-width="1.5" stroke-dasharray="6,4" stroke-linecap="round"/>
+    <path d="M88,205 Q66,240 58,280" fill="none" stroke="rgba(110,70,18,0.38)" stroke-width="1.3" stroke-dasharray="5,4" stroke-linecap="round"/>
+    <path d="M270,195 Q286,240 280,300" fill="none" stroke="rgba(110,70,18,0.38)" stroke-width="1.3" stroke-dasharray="5,4" stroke-linecap="round"/>
+
+    <g fill="rgba(75,42,8,0.52)" stroke="rgba(55,28,4,0.38)" stroke-width="0.5">
+      <rect x="78" y="198" width="6" height="8" rx="0.5"/><polygon points="76,198 85,198 80.5,193"/>
+      <rect x="260" y="188" width="6" height="8" rx="0.5"/><polygon points="258,188 267,188 262.5,183"/>
+      <rect x="144" y="81" width="5" height="6" rx="0.5"/><polygon points="142,81 150,81 146,76"/>
+      <rect x="50" y="275" width="5" height="7" rx="0.5"/><polygon points="48,275 56,275 52,270"/>
+      <rect x="189" y="350" width="5" height="6" rx="0.5"/><polygon points="187,350 195,350 191,345"/>
+    </g>
+
+    <text x="87" y="218" font-family="Cinzel,serif" font-size="8" fill="#3d1a03" text-anchor="middle" font-weight="600">Valdebruma</text>
+    <text x="268" y="208" font-family="Cinzel,serif" font-size="8" fill="#3d1a03" text-anchor="middle" font-weight="600">Tórvalo</text>
+    <text x="152" y="94" font-family="Cinzel,serif" font-size="7.5" fill="#3d1a03" text-anchor="middle">Cerrofil</text>
+    <text x="55" y="292" font-family="Cinzel,serif" font-size="7.5" fill="#3d1a03" text-anchor="middle">Velmora</text>
+    <text x="197" y="365" font-family="Cinzel,serif" font-size="7.5" fill="#3d1a03" text-anchor="middle">Nublara</text>
+    <text x="60" y="148" font-family="Cinzel,serif" font-size="6.5" fill="rgba(80,45,10,0.38)" font-style="italic" transform="rotate(-8,60,148)">Tierras de Brumas</text>
+    <text x="220" y="150" font-family="Cinzel,serif" font-size="6.5" fill="rgba(80,45,10,0.35)" font-style="italic">Llanuras de Endrial</text>
+    <text x="270" y="310" font-family="Cinzel,serif" font-size="6.5" fill="rgba(80,45,10,0.36)" font-style="italic" transform="rotate(5,270,310)">Valle Sombra</text>
+
+    <g transform="translate(308,405)">
+      <circle cx="0" cy="0" r="26" fill="rgba(200,150,60,0.16)" stroke="rgba(100,65,20,0.52)" stroke-width="1"/>
+      <circle cx="0" cy="0" r="21" fill="none" stroke="rgba(100,65,20,0.28)" stroke-width="0.6"/>
+      <line x1="0" y1="-19" x2="0" y2="19" stroke="rgba(80,45,10,0.55)" stroke-width="0.9"/>
+      <line x1="-19" y1="0" x2="19" y2="0" stroke="rgba(80,45,10,0.55)" stroke-width="0.9"/>
+      <polygon points="0,-18 -3,-5 0,-2 3,-5" fill="rgba(140,20,20,0.75)"/>
+      <polygon points="0,18 -3,5 0,2 3,5" fill="rgba(80,45,10,0.48)"/>
+      <circle cx="0" cy="0" r="2.5" fill="rgba(80,45,10,0.65)"/>
+      <text x="0" y="-22" font-family="Cinzel,serif" font-size="7" fill="rgba(60,30,5,0.7)" text-anchor="middle">N</text>
+      <text x="0" y="30" font-family="Cinzel,serif" font-size="7" fill="rgba(60,30,5,0.7)" text-anchor="middle">S</text>
+      <text x="-26" y="3" font-family="Cinzel,serif" font-size="7" fill="rgba(60,30,5,0.7)" text-anchor="middle">O</text>
+      <text x="26" y="3" font-family="Cinzel,serif" font-size="7" fill="rgba(60,30,5,0.7)" text-anchor="middle">E</text>
+    </g>
+
+    <g transform="translate(30,380)" fill="rgba(80,45,15,0.32)" stroke="rgba(60,30,8,0.28)" stroke-width="0.7">
+      <path d="M0,10 Q12,17 24,10 Q20,4 12,3 Q4,4 0,10Z"/>
+      <line x1="12" y1="3" x2="12" y2="-8" stroke-width="0.9"/>
+      <path d="M12,-8 Q18,-4 18,0 L12,1Z" fill="rgba(80,45,15,0.32)"/>
+    </g>
+
+    <!-- HOTSPOT 1: Ruinas de Valdrevos -->
+    <g class="hs" onclick="openC('r')" style="cursor:pointer">
+      <g fill="rgba(80,45,10,0.58)" stroke="rgba(55,28,4,0.38)" stroke-width="0.5">
+        <rect x="68" y="136" width="5" height="12" rx="0.4"/>
+        <rect x="75" y="141" width="4" height="7" rx="0.4"/>
+        <rect x="69" y="133" width="3" height="4"/>
+        <line x1="66" y1="148" x2="82" y2="148" stroke-width="0.9"/>
+      </g>
+      <circle cx="86" cy="140" r="9" fill="rgba(155,18,18,0.88)" stroke="#f5d78e" stroke-width="1.5"/>
+      <text x="86" y="144.5" font-family="serif" font-size="8" fill="#f5d78e" text-anchor="middle">◆</text>
+      <text x="77" y="160" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Ruinas de</text>
+      <text x="77" y="170" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Valdrevos</text>
+      <text x="77" y="180" font-family="Cinzel,serif" font-size="6.5" fill="rgba(140,20,20,0.85)" text-anchor="middle" font-style="italic">◆ Camino I</text>
+    </g>
+
+    <!-- HOTSPOT 2: Taberna del Búho Ciego -->
+    <g class="hs" onclick="openC('t')" style="cursor:pointer">
+      <g fill="rgba(80,45,10,0.58)" stroke="rgba(55,28,4,0.38)" stroke-width="0.5">
+        <rect x="178" y="134" width="15" height="12" rx="0.8"/>
+        <polygon points="176,134 195,134 185.5,127"/>
+        <rect x="183" y="138" width="4" height="8" rx="0.4"/>
+      </g>
+      <circle cx="200" cy="133" r="9" fill="rgba(155,18,18,0.88)" stroke="#f5d78e" stroke-width="1.5"/>
+      <text x="200" y="137.5" font-family="serif" font-size="8" fill="#f5d78e" text-anchor="middle">◆</text>
+      <text x="190" y="158" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Taberna del</text>
+      <text x="190" y="168" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Búho Ciego</text>
+      <text x="190" y="178" font-family="Cinzel,serif" font-size="6.5" fill="rgba(140,20,20,0.85)" text-anchor="middle" font-style="italic">◆ Camino II</text>
+    </g>
+
+    <!-- HOTSPOT 3: Faro de Grelmon -->
+    <g class="hs" onclick="openC('f')" style="cursor:pointer">
+      <g fill="rgba(80,45,10,0.58)" stroke="rgba(55,28,4,0.38)" stroke-width="0.5">
+        <rect x="292" y="256" width="7" height="22" rx="0.8"/>
+        <polygon points="290,256 301,256 295.5,249"/>
+        <ellipse cx="295.5" cy="257" rx="4" ry="2.5" fill="rgba(240,200,80,0.38)"/>
+      </g>
+      <circle cx="307" cy="258" r="9" fill="rgba(155,18,18,0.88)" stroke="#f5d78e" stroke-width="1.5"/>
+      <text x="307" y="262.5" font-family="serif" font-size="8" fill="#f5d78e" text-anchor="middle">◆</text>
+      <text x="300" y="292" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Faro de</text>
+      <text x="300" y="302" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Grelmon</text>
+      <text x="300" y="312" font-family="Cinzel,serif" font-size="6.5" fill="rgba(140,20,20,0.85)" text-anchor="middle" font-style="italic">◆ Camino III</text>
+    </g>
+
+    <!-- HOTSPOT 4: Cavernas del Saber (TESORO) -->
+    <g class="hs" onclick="openC('c')" style="cursor:pointer">
+      <g fill="rgba(80,45,10,0.55)" stroke="rgba(55,28,4,0.35)" stroke-width="0.5">
+        <path d="M175,395 Q182,383 190,395 Q195,404 190,411 Q182,418 175,411 Q170,404 175,395Z"/>
+        <ellipse cx="182" cy="405" rx="7" ry="4.5" fill="rgba(35,16,3,0.62)"/>
+      </g>
+      <circle cx="182" cy="402" r="13" fill="rgba(200,150,20,0.18)" stroke="rgba(200,150,20,0.5)" stroke-width="1" stroke-dasharray="3,2"/>
+      <circle cx="196" cy="391" r="9" fill="rgba(160,128,18,0.92)" stroke="#f5d78e" stroke-width="1.5"/>
+      <text x="196" y="395.5" font-family="serif" font-size="9" fill="#f5d78e" text-anchor="middle">★</text>
+      <text x="183" y="427" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">Cavernas</text>
+      <text x="183" y="437" font-family="Cinzel,serif" font-size="8" fill="#2a0f00" text-anchor="middle">del Saber</text>
+      <text x="183" y="447" font-family="Cinzel,serif" font-size="6.5" fill="rgba(140,100,8,0.92)" text-anchor="middle" font-style="italic">★ El Tesoro</text>
+    </g>
+
+    <path d="M195,356 Q190,372 183,392" fill="none" stroke="rgba(155,125,18,0.5)" stroke-width="1.3" stroke-dasharray="3,3"/>
+    <path d="M278,300 Q260,345 197,390" fill="none" stroke="rgba(155,125,18,0.4)" stroke-width="1" stroke-dasharray="3,3"/>
+
+  </svg>
+  </div>
+
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:rgba(60,100,140,0.52)"></div><span>Aguas</span></div>
+    <div class="li"><div class="ld" style="background:rgba(90,55,15,0.62)"></div><span>Montañas</span></div>
+    <div class="li"><div class="ld" style="background:rgba(50,88,28,0.62)"></div><span>Bosques</span></div>
+    <div class="li"><div class="ld" style="background:rgba(155,18,18,0.82)"></div><span>◆ Desafío</span></div>
+    <div class="li"><div class="ld" style="background:rgba(160,128,18,0.82)"></div><span>★ Tesoro</span></div>
+  </div>
+  <div class="footer-note">Anno Domini MMXXVI · Cartógrafo Maestro Ignatius de Nubilor · Meridianos del Imperio</div>
+
+</div></div></div>
+
+<!-- ══ CAMINO I ══ -->
+<div id="sr" class="screen"><div class="gscreen"><div class="gparch">
+  <div class="gtitle-bar"><div class="gloc">Ruinas de Valdrevos</div><div class="gsub">Camino I · La Prueba de la Sabiduría Antigua</div></div>
+  <div class="pdots" id="dots-r"></div>
+  <div id="cnt-r"></div>
+  <div id="fb-r" class="fbox"></div>
+  <div id="nav-r"></div>
+  <button class="nbtn back" onclick="goMap()">← Volver al mapa</button>
+</div></div></div>
+
+<!-- ══ CAMINO II ══ -->
+<div id="st" class="screen"><div class="gscreen"><div class="gparch">
+  <div class="gtitle-bar"><div class="gloc">Taberna del Búho Ciego</div><div class="gsub">Camino II · Los Enigmas del Ventero</div></div>
+  <div class="pdots" id="dots-t"></div>
+  <div id="cnt-t"></div>
+  <div id="fb-t" class="fbox"></div>
+  <div id="nav-t"></div>
+  <button class="nbtn back" onclick="goMap()">← Volver al mapa</button>
+</div></div></div>
+
+<!-- ══ CAMINO III ══ -->
+<div id="sf" class="screen"><div class="gscreen"><div class="gparch">
+  <div class="gtitle-bar"><div class="gloc">Faro de Grelmon</div><div class="gsub">Camino III · Los Acertijos del Farero</div></div>
+  <div class="pdots" id="dots-f"></div>
+  <div id="cnt-f"></div>
+  <div id="fb-f" class="fbox"></div>
+  <div id="nav-f"></div>
+  <button class="nbtn back" onclick="goMap()">← Volver al mapa</button>
+</div></div></div>
+
+<!-- ══ CAVERNAS ══ -->
+<div id="sc" class="screen"><div class="gscreen"><div class="gparch">
+  <div class="gtitle-bar"><div class="gloc">Cavernas del Saber</div><div class="gsub">El Destino Final · La Gran Prueba</div></div>
+  <div class="pdots" id="dots-c"></div>
+  <div id="cnt-c"></div>
+  <div id="fb-c" class="fbox"></div>
+  <div id="nav-c"></div>
+  <button class="nbtn back" onclick="goMap()">← Volver al mapa</button>
+</div></div></div>
+
+<script>
+const CH={
+  r:[
+    {type:'choice',emoji:'🏛️',
+     text:'En las Ruinas de Valdrevos, una inscripción en piedra dice:\n\n"Soy el inicio del tiempo, el final del espacio. Estoy en todas las palabras pero en ningún lugar. ¿Qué soy?"',
+     opts:['El infinito','La letra T','El silencio','La letra E'],ok:3,
+     fok:'¡Correcto! La "E" da inicio a "espacio" y aparece en esas palabras de forma especial. La piedra se abre y revela un fragmento del mapa.',
+     ferr:'La piedra permanece cerrada. El espíritu susurra: "Piensa más despacio..."'},
+    {type:'choice',emoji:'📜',
+     text:'El fragmento revela un texto:\n\n"Un padre tiene 3 hijos. El primero tiene 4 años más que el segundo, y el segundo tiene 4 años más que el tercero. Entre los tres suman 24 años. ¿Cuántos años tiene el hijo del medio?"',
+     opts:['6 años','8 años','10 años','12 años'],ok:1,
+     fok:'¡Perfecto! (x-4) + x + (x+4) = 24 → 3x = 24 → x = 8 años. ¡El fragmento brilla con luz dorada!',
+     ferr:'Los números se desvanecen. Llama x al del medio y plantea la ecuación.'},
+    {type:'input',emoji:'⚔️',
+     text:'El guardián fantasmal bloquea el paso:\n\n"Tengo ciudades, pero no casas. Tengo montañas, pero no árboles. Tengo agua, pero no peces. Tengo caminos, pero nunca tuve viajeros. ¿Qué soy?"',
+     ans:'mapa',hint:'Es algo que tienes en tus manos ahora mismo...',
+     fok:'¡MAPA! El guardián se inclina. "Primer sello conquistado, Guillermo el Grande."',
+     ferr:'¿Qué objeto tiene ciudades, montañas y caminos pero sin vida real?'},
+  ],
+  t:[
+    {type:'choice',emoji:'🦉',
+     text:'El viejo ventero te mira fijamente:\n\n"Joven viajero, si tienes 3 manzanas y me das 1, ¿cuántas manzanas TIENES?"',
+     opts:['2 manzanas','3 manzanas','4 manzanas','1 manzana'],ok:0,
+     fok:'¡Exacto! Tienes 2, porque diste 1. "Muchos dicen 3 porque no escuchan. Tú sí escuchas."',
+     ferr:'"Lee bien: ¿cuántas TIENES ahora?"'},
+    {type:'choice',emoji:'🎲',
+     text:'El ventero saca dados:\n\n"Si un dado tiene 6 caras y tiro 2 dados, ¿cuántas combinaciones distintas puedo obtener (contando el orden)?"',
+     opts:['12','36','18','24'],ok:1,
+     fok:'¡Brillante! 6 × 6 = 36 combinaciones. "Pocos lo resuelven sin papel."',
+     ferr:'"No es suma, es multiplicación. Cada dado es independiente: 6 × 6 = ?"'},
+    {type:'input',emoji:'🗝️',
+     text:'El ventero saca una llave:\n\n"Un hombre mira un retrato y dice: \'no tengo hermanos ni hermanas, pero el padre de este hombre es el hijo de mi padre\'. ¿Quién está en el retrato?"',
+     ans:'su hijo',hint:'Si no tiene hermanos, "el hijo de mi padre" es él mismo.',
+     fok:'¡SU HIJO! "El padre del retrato soy yo" → es su propio hijo. ¡Segundo sello conquistado!',
+     ferr:'"El hijo de mi padre" ¿quién puede ser si no tiene hermanos?'},
+  ],
+  f:[
+    {type:'choice',emoji:'🔦',
+     text:'El anciano farero dice:\n\n"Si escribo la palabra INCORRECTAMENTE... ¿la escribo bien o mal?"',
+     opts:['La escribo mal','La escribo bien','Depende','Es una contradicción'],ok:1,
+     fok:'¡Correcto! Si no tiene errores ortográficos, la escribí bien, sin importar su significado. El farero ríe a carcajadas.',
+     ferr:'"No confundas el significado con si está bien escrita ortográficamente."'},
+    {type:'choice',emoji:'🌊',
+     text:'El farero señala el mar:\n\n"Si hay 5 barcos en el puerto y 3 salen a pescar... ¿cuántos barcos quedan EN el puerto?"',
+     opts:['2 barcos','5 barcos','3 barcos','0 barcos'],ok:0,
+     fok:'¡Bien! 5 - 3 = 2 barcos en el puerto. "Mente clara como noche de luna llena."',
+     ferr:'"La pregunta es cuántos quedan EN el puerto."'},
+    {type:'input',emoji:'⭐',
+     text:'El farero apunta al cielo:\n\n"¿Cuál es el siguiente número?\n\n 2 — 4 — 8 — 16 — 32 — ___"',
+     ans:'64',hint:'Cada número se multiplica por 2.',
+     fok:'¡64! Serie geométrica de razón 2. El farero ilumina el mar tres veces. "¡El tesoro te aguarda!"',
+     ferr:'2×2=4, 4×2=8... ¿cuánto es 32×2?'},
+  ],
+  c:[
+    {type:'choice',emoji:'💀',
+     text:'Una voz ancestral resuena en las Cavernas:\n\n"Soy liviano como una pluma, pero ni el hombre más fuerte puede sostenerme por más de 5 minutos. ¿Qué soy?"',
+     opts:['El viento','El fuego','El aliento','La esperanza'],ok:2,
+     fok:'¡EL ALIENTO! Nadie puede aguantar sin respirar más de unos minutos. "Eres digno de continuar."',
+     ferr:'Es algo que literalmente sostienes dentro de ti...'},
+    {type:'choice',emoji:'🔢',
+     text:'Ante la puerta sellada:\n\n"¿Cuánto es la mitad de 2, más 2?"',
+     opts:['2','3','1','4'],ok:1,
+     fok:'¡3! La mitad de 2 es 1, más 2 = 3. La puerta tiembla...',
+     ferr:'Primero "la mitad de 2" = 1, luego + 2 = 3.'},
+    {type:'input',emoji:'🏆',
+     text:'¡LA PRUEBA FINAL!\n\nEl espíritu guardián exige la última respuesta:\n\n"Cuanto más grande soy, menos ves. Cuanto más lleno un espacio, menos cabe en él. ¿Qué soy?"',
+     ans:'oscuridad',hint:'Ocurre cuando apagas todas las luces...',
+     fok:'¡LA OSCURIDAD! ¡¡El espíritu se inclina, la puerta se abre y el tesoro es tuyo, Guillermo el Grande!!',
+     ferr:'Ocurre cuando no hay luz. Cuando es total, no puedes ver nada.'},
+  ],
+};
+
+const ST={r:{step:0},t:{step:0},f:{step:0},c:{step:0}};
+
+function goMap(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sm').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function openC(p){
+  ST[p].step=0;renderC(p);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+p).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderDots(p){
+  const total=CH[p].length,cur=ST[p].step;
+  const el=document.getElementById('dots-'+p);
+  el.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='pd'+(i<cur?' done':'');
+    el.appendChild(d);
+  }
+}
+
+function renderC(p){
+  const step=ST[p].step,c=CH[p];
+  const ce=document.getElementById('cnt-'+p);
+  const fe=document.getElementById('fb-'+p);
+  const ne=document.getElementById('nav-'+p);
+  fe.style.display='none';fe.className='fbox';
+  renderDots(p);
+  if(step>=c.length){
+    ce.innerHTML=`<div class="trev">
+      <span class="ticon">🎉</span>
+      <div class="tmsg">¡Camino Completado!</div>
+      <div class="tsub">Has superado todas las pruebas de este sendero.<br>Regresa al mapa y sigue explorando los demás caminos para encontrar el Gran Tesoro.</div>
+    </div>`;
+    ne.innerHTML=`<button class="nbtn" onclick="goMap()">🗺️ Regresar al Mapa</button>`;
+    return;
+  }
+  const ch=c[step];
+  if(ch.type==='choice'){
+    const obs=ch.opts.map((o,i)=>`<button class="obtn" id="o${p}${i}" onclick="chkC('${p}',${i})">${o}</button>`).join('');
+    ce.innerHTML=`<div class="cbox"><span class="cemoji">${ch.emoji}</span>${ch.text.split('\n').map(l=>`<p>${l}</p>`).join('')}</div><div class="opts">${obs}</div>`;
+    ne.innerHTML='';
+  } else {
+    ce.innerHTML=`<div class="cbox"><span class="cemoji">${ch.emoji}</span>${ch.text.split('\n').map(l=>`<p>${l}</p>`).join('')}${ch.hint?`<p class="cpista">💡 Pista: ${ch.hint}</p>`:''}</div>
+    <div class="rinput-row">
+      <input class="rinput" id="inp-${p}" type="text" placeholder="Tu respuesta..." autocomplete="off" onkeydown="if(event.key==='Enter')chkI('${p}')">
+      <button class="sbtn" onclick="chkI('${p}')">Responder</button>
+    </div>`;
+    ne.innerHTML='';
+  }
+}
+
+function chkC(p,idx){
+  const step=ST[p].step,ch=CH[p][step];
+  const fe=document.getElementById('fb-'+p),ne=document.getElementById('nav-'+p);
+  ch.opts.forEach((_,i)=>{
+    const b=document.getElementById('o'+p+i);b.disabled=true;
+    if(i===ch.ok) b.classList.add('correct');
+    else if(i===idx) b.classList.add('wrong');
+  });
+  if(idx===ch.ok){
+    fe.className='fbox ok';fe.textContent='✅ '+ch.fok;fe.style.display='block';
+    ne.innerHTML=`<button class="nbtn" onclick="nextS('${p}')">Continuar →</button>`;
+  } else {
+    fe.className='fbox err';fe.textContent='❌ '+ch.ferr;fe.style.display='block';
+    ne.innerHTML=`<button class="nbtn" onclick="renderC('${p}')">Intentar de nuevo</button>`;
+  }
+}
+
+function chkI(p){
+  const step=ST[p].step,ch=CH[p][step];
+  const ie=document.getElementById('inp-'+p);
+  const fe=document.getElementById('fb-'+p),ne=document.getElementById('nav-'+p);
+  const a=ie.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const ok=ch.ans.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  if(a===ok){
+    ie.disabled=true;ie.style.borderColor='#2a6a2a';
+    fe.className='fbox ok';fe.textContent='✅ '+ch.fok;fe.style.display='block';
+    ne.innerHTML=`<button class="nbtn" onclick="nextS('${p}')">Continuar →</button>`;
+  } else {
+    fe.className='fbox err';fe.textContent='❌ '+ch.ferr;fe.style.display='block';
+    ie.value='';ie.focus();
+  }
+}
+
+function nextS(p){ST[p].step++;renderC(p);}
+</script>
+</body>
+</html>
