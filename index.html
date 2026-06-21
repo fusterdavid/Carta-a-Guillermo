@@ -648,9 +648,9 @@ const ST={
    r → t → f → c
    Cada uno requiere que el anterior esté done. */
 const PREREQ={r:null, t:'r', f:'t', c:['r','t','f']};
-const NOMBRES={r:'Camino I — Ruinas de Valdrevos', t:'Camino II — Taberna del Búho Ciego', f:'Camino III — Faro de Grelmon'};
+const NOMBRES={r:'Camino I -- Ruinas de Valdrevos', t:'Camino II -- Taberna del Búho Ciego', f:'Camino III -- Faro de Grelmon'};
 
-/* ══ DESAFÍOS — más difíciles ══ */
+/* ══ DESAFÍOS -- más difíciles ══ */
 const CH={
   r:[
     {type:'choice',emoji:'🏛️',
@@ -808,8 +808,8 @@ function renderC(p){
   if(step>=c.length){
     ST[p].done=true;
     let msg='';
-    if(p==='r') msg='Regresa al mapa. El Camino II — Taberna del Búho Ciego — te aguarda.';
-    else if(p==='t') msg='Regresa al mapa. El Camino III — Faro de Grelmon — te aguarda.';
+    if(p==='r') msg='Regresa al mapa. El Camino II -- Taberna del Búho Ciego -- te aguarda.';
+    else if(p==='t') msg='Regresa al mapa. El Camino III -- Faro de Grelmon -- te aguarda.';
     else if(p==='f') msg='¡Los tres caminos superados! Las Cavernas del Saber ya están abiertas para ti.';
     else msg='¡Has encontrado el Tesoro! Guillermo el Grande ha demostrado su valía.';
     ce.innerHTML=`<div class="trev">
